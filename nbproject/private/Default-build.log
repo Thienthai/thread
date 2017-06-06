@@ -1,0 +1,39 @@
+cd lib && make
+make[1]: Entering directory '/home/thienthai/Desktop/thread/lib'
+gcc -c -g -o saccept.o saccept.c
+gcc -c -g -o sconnect.o sconnect.c
+gcc -c -g -o slisten.o slisten.c
+gcc -c -g -o sportnum.o sportnum.c
+gcc -c -g -o sprim.o sprim.c
+gcc -c -g -o smessages.o smessages.c
+smessages.c: In function ‘get_next_message’:
+smessages.c:128:21: warning: zero-length gnu_printf format string [-Wformat-zero-length]
+          sprintf(c, "");
+                     ^
+ar ru libsock.a saccept.o sconnect.o slisten.o sportnum.o sprim.o smessages.o
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: creating libsock.a
+ranlib libsock.a
+make[1]: Leaving directory '/home/thienthai/Desktop/thread/lib'
+gcc -o client.o -c client.c
+gcc -o common.o -c common.c
+gcc -o client client.o common.o -L./lib/ -lsock -lpthread
+./lib//libsock.a(sprim.o): In function `sperror':
+/home/thienthai/Desktop/thread/lib/sprim.c:132: warning: `sys_errlist' is deprecated; use `strerror' or `strerror_r' instead
+gcc -o server.o -c server.c
+gcc -o server server.o common.o -L./lib/ -lsock -lpthread
+./lib//libsock.a(sprim.o): In function `sperror':
+/home/thienthai/Desktop/thread/lib/sprim.c:132: warning: `sys_errlist' is deprecated; use `strerror' or `strerror_r' instead
+gcc -o example_thread.o -c example_thread.c
+gcc -o example_thread example_thread.o -lpthread
+gcc -o threadpool_test.o -c threadpool_test.c
+threadpool_test.c: In function ‘dispatch_to_me’:
+threadpool_test.c:17:17: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+   int seconds = (int) arg;
+                 ^
+gcc -o threadpool.o -c threadpool.c
+gcc -o threadpool_test threadpool_test.o threadpool.o -lpthread
+strip client
+strip server
+strip example_thread
+strip threadpool_test
