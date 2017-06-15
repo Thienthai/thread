@@ -13,7 +13,7 @@
 
 // use this struc to record the work perform by thread
 typedef struct record_t {
-	void (*routine) (void*); // assign the pre void function
+	void (*routine) (void*); // assign the pre void running function 
 	void * arg; // assign for thread argument
 	struct record_t* next; // the next thread assign
 } record_t;
@@ -36,7 +36,7 @@ typedef struct _threadpool_st {
 
 void *worker_thread(void *args) {
     _threadpool * pool = (_threadpool *) args;
-    record_t* seq; // sequence record 
+    record_t* seq; // sequence record
     while (1) {
         // wait for a signal
         // l
@@ -52,8 +52,8 @@ void *worker_thread(void *args) {
             // create each thread and wait for the dispatch
             pthread_mutex_unlock(&(pool->lock_x));
             pthread_cond_wait(&(pool->lock_x_nonempty),&(pool
-            ->lock_x)); 
-            
+            ->lock_x));
+
             if(pool->close){
                 // after finish dispatch unlock other thread
                 // to work
@@ -61,11 +61,11 @@ void *worker_thread(void *args) {
                 pthread_exit(NULL);
             }
         }
-        
-        //count down the sequence after finish job 
+
+        //count down the sequence after finish job
         seq = pool->front;
         pool->quesz--;
-        
+
         if(pool->quesz == 0){
             // if no sequence before just set the front and
             // back to null
@@ -77,11 +77,11 @@ void *worker_thread(void *args) {
             // assign the next routine to it
             pool->front = seq->next;
         }
-        
+
         // allow other thread to come in working thread
         // and free all the current work
         pthread_mutex_unlock(&(pool->lock_x));
-        (seq->routine) (seq->arg);
+        (seq->routine) (seq->arg); // start to execute the job
         free(seq);
     }
 }
@@ -151,15 +151,15 @@ void dispatch(threadpool from_me, dispatch_fn dispatch_to_here,
   seq->routine = dispatch_to_here;
   seq->arg = arg;
   seq->next = NULL;
-  
+
   pthread_mutex_lock(&(pool->lock_x)); // start the mutex
-  
+
   if(pool->quesz == 0) // starting the thread go into this loop
   {
       //set the sequence to be the starting point of seq
-      pool->front = seq; 
+      pool->front = seq;
       pool->back = seq;
-      pthread_cond_signal(&(pool->lock_x_nonempty)); // set thread work to be none empty     
+      pthread_cond_signal(&(pool->lock_x_nonempty)); // set thread work to be none empty
   }else{
       // assign the next thread and the current working thread
       pool->back->next = seq;
